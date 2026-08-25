@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ValidationError } from "yup";
+import AccountNotFoundModal from "@/components/AccountNotFoundModal";
 import RegistrationView from "@/components/RegistrationView";
 import ChatBubble from "@/components/ChatBubble";
 import HoneypotField from "@/components/HoneypotField";
@@ -118,19 +119,9 @@ export default function Home() {
   const [countryOpen, setCountryOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
+  const [showAccountNotFound, setShowAccountNotFound] = useState(false);
   const [formValues, setFormValues] = useState<LoginFormValues>({ phone: "", password: "" });
   const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
-
-  const validateField = async (field: keyof LoginFormValues) => {
-    try {
-      await loginSchema.validateAt(field, formValues);
-      setErrors((current) => ({ ...current, [field]: undefined }));
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        setErrors((current) => ({ ...current, [field]: error.message }));
-      }
-    }
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -139,6 +130,7 @@ export default function Home() {
     try {
       await loginSchema.validate(formValues, { abortEarly: false });
       setErrors({});
+      setShowAccountNotFound(true);
     } catch (error) {
       if (error instanceof ValidationError) {
         const nextErrors: Partial<Record<keyof LoginFormValues, string>> = {};
@@ -196,7 +188,6 @@ export default function Home() {
               maxLength={15}
               aria-invalid={Boolean(errors.phone)}
               onChange={(event) => setFormValues((current) => ({ ...current, phone: event.target.value.replace(/\D/g, "") }))}
-              onBlur={() => validateField("phone")}
             />
           </div>
           {errors.phone && <p className="field-error">{errors.phone}</p>}
@@ -211,7 +202,6 @@ export default function Home() {
               maxLength={32}
               aria-invalid={Boolean(errors.password)}
               onChange={(event) => setFormValues((current) => ({ ...current, password: event.target.value }))}
-              onBlur={() => validateField("password")}
             />
             <button className="eye-button" type="button" aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"} aria-pressed={showPassword} onClick={() => setShowPassword((visible) => !visible)}>
               <svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z" /><circle cx="12" cy="12" r="2.3" /></svg>
@@ -242,6 +232,7 @@ export default function Home() {
       </div>
 
       <ChatBubble />
+      {showAccountNotFound && <AccountNotFoundModal onClose={() => setShowAccountNotFound(false)} />}
     </main>
   );
 }
