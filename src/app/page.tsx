@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ValidationError } from "yup";
+import RegistrationView from "@/components/RegistrationView";
+import ChatBubble from "@/components/ChatBubble";
+import HoneypotField from "@/components/HoneypotField";
 import { loginSchema, type LoginFormValues } from "@/lib/validation/login-schema";
 
 const peruvianNames = [
@@ -22,7 +25,7 @@ const peruvianNames = [
   "Sofía Herrera",
   "Diego Morales",
   "Patricia León",
-  "Rodrigo Espinoza",
+  "Rodrigo Siancas",
   "Carmen Huamán",
   "Sebastián Cabrera",
   "Alejandra Cervantes",
@@ -114,6 +117,7 @@ export default function Home() {
   const [country, setCountry] = useState(countries[0]);
   const [countryOpen, setCountryOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
   const [formValues, setFormValues] = useState<LoginFormValues>({ phone: "", password: "" });
   const [errors, setErrors] = useState<Partial<Record<keyof LoginFormValues, string>>>({});
 
@@ -130,6 +134,8 @@ export default function Home() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const honeypot = event.currentTarget.elements.namedItem("website") as HTMLInputElement | null;
+    if (honeypot?.value.trim()) return;
     try {
       await loginSchema.validate(formValues, { abortEarly: false });
       setErrors({});
@@ -146,6 +152,10 @@ export default function Home() {
     }
   };
 
+  if (showRegistration) {
+    return <RegistrationView onBack={() => setShowRegistration(false)} />;
+  }
+
   return (
     <main className="page-shell">
       <ActivityFeed />
@@ -156,6 +166,7 @@ export default function Home() {
         <p className="welcome-copy">Continúa ganando dinero hoy</p>
 
         <form className="login-card" onSubmit={handleSubmit} noValidate>
+          <HoneypotField />
           <div className="phone-row">
             <div className="country-code">
               <CountryFlag country={country} />
@@ -209,7 +220,7 @@ export default function Home() {
           {errors.password && <p className="field-error">{errors.password}</p>}
           <div className="form-links">
             <a href="#forgot-password">¿Olvidaste tu clave?</a>
-            <a className="register-link" href="#register">Registrarse</a>
+            <button className="register-link" type="button" onClick={() => setShowRegistration(true)}>Registrarse</button>
           </div>
           <button type="submit">Entrar y continuar tareas</button>
           <p className="secure-note">SSL seguro, tus datos siempre privados</p>
@@ -230,7 +241,7 @@ export default function Home() {
         <div><span className="trust-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 13a8 8 0 0 1 16 0" /><path d="M4 13v4a2 2 0 0 0 2 2h1v-6H4Zm16 0v4a2 2 0 0 1-2 2h-1v-6h3Z" /><path d="M15 19c-.7 1-1.7 1.5-3 1.5" /></svg></span><strong>Ayuda 24/7</strong></div>
       </div>
 
-      <button className="help-button" aria-label="Abrir ayuda">◡</button>
+      <ChatBubble />
     </main>
   );
 }
