@@ -422,14 +422,64 @@ input {
   color: #69788d;
 }
 .form-links {
+  position: relative;
   display: flex;
   justify-content: space-between;
   margin: 22px 0 18px;
   font-size: 14px;
 }
-.form-links a {
+.form-links a,
+.recovery-trigger {
   color: var(--ink);
   text-decoration: none;
+}
+.recovery-trigger {
+  background: #fff;
+  color: #10233f;
+  padding: 0;
+  border: 0;
+  font-size: inherit;
+  cursor: pointer;
+}
+.login-card .recovery-trigger {
+  width: auto;
+  height: auto;
+  background: #fff;
+  color: #10233f;
+  box-shadow: none;
+  font-size: inherit;
+}
+.recovery-trigger:hover,
+.recovery-trigger:focus-visible {
+  background: #fff;
+  color: #10233f;
+}
+.login-card .recovery-trigger:hover,
+.login-card .recovery-trigger:focus-visible,
+.login-card .recovery-trigger:active {
+  background: #fff;
+  color: #10233f;
+  box-shadow: none;
+}
+.recovery-link-wrap {
+  display: inline-block;
+  min-width: 0;
+}
+.recovery-badge {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 4px;
+  width: calc(100% - 8px);
+  padding: 7px 9px;
+  border: 1px solid #10233f45;
+  border-radius: 6px;
+  background: #10233fae;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
 }
 .register-link {
   width: auto !important;

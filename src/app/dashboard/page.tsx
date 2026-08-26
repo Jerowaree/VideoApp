@@ -161,7 +161,6 @@ export default function DashboardPage() {
                 )}
               </span>
             )}{" "}
-            <span aria-hidden="true">✺</span>
           </h1>
           <p>Hay nuevas tareas esperándote hoy.</p>
         </div>

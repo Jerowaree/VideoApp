@@ -111,6 +111,8 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState("");
   const [authSuccess, setAuthSuccess] = useState("");
+  const [showRecoveryNotice, setShowRecoveryNotice] = useState(false);
+  const recoveryTimer = useRef<number | null>(null);
   const [formValues, setFormValues] = useState<LoginFormValues>({
     phone: "",
     password: "",
@@ -180,6 +182,21 @@ export default function Home() {
       }
     }
   };
+
+  const handleRecoveryClick = () => {
+    setShowRecoveryNotice(true);
+    if (recoveryTimer.current) window.clearTimeout(recoveryTimer.current);
+    recoveryTimer.current = window.setTimeout(() => {
+      setShowRecoveryNotice(false);
+      recoveryTimer.current = null;
+    }, 1200);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (recoveryTimer.current) window.clearTimeout(recoveryTimer.current);
+    };
+  }, []);
 
   if (showRegistration) {
     return <RegistrationView onBack={() => setShowRegistration(false)} />;
@@ -261,7 +278,20 @@ export default function Home() {
             </p>
           )}
           <div className="form-links">
-            <a href="#forgot-password">¿Olvidaste tu clave?</a>
+            <span className="recovery-link-wrap">
+              <button
+                className="recovery-trigger"
+                type="button"
+                onClick={handleRecoveryClick}
+              >
+                ¿Olvidaste tu clave?
+              </button>
+              {showRecoveryNotice && (
+                <span className="recovery-badge" role="status">
+                  Recuperación disponible pronto
+                </span>
+              )}
+            </span>
             <button
               className="register-link"
               type="button"
