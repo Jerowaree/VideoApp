@@ -44,5 +44,9 @@ export async function upsertProfile(id: string, name: string, phone: string) {
 }
 
 export async function getMyProfile() {
-  return createClient().from("profiles").select("is_active").single();
+  return createClient().from("profiles").select("is_active, name").single();
+}
+
+export async function signOut() {
+  return createClient().auth.signOut();
 }

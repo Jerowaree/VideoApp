@@ -5,6 +5,7 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const allowedPath =
     pathname === "/" ||
+    pathname === "/dashboard" ||
     pathname === "/control-9f3a7c1e" ||
     pathname.startsWith("/api/superadmin/") ||
     pathname.startsWith("/api/registration/");

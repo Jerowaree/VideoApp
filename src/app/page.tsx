@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ValidationError } from "yup";
 import AccountNotFoundModal from "@/components/AccountNotFoundModal";
+import SuccessModal from "@/components/SuccessModal";
 import RegistrationView from "@/components/RegistrationView";
 import RegistrationModal from "@/components/RegistrationModal";
 import ChatBubble from "@/components/ChatBubble";
@@ -17,6 +18,7 @@ import {
   type LoginFormValues,
 } from "@/lib/validation/login-schema";
 import { getMyProfile, signInWithPhone } from "@/lib/supabase/auth";
+import { useRouter } from "next/navigation";
 
 const peruvianNames = [
   "María Quiroga",
@@ -100,6 +102,7 @@ function ActivityFeed() {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [country, setCountry] = useState<Country>(countries[0]);
   const [showPassword, setShowPassword] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
@@ -257,11 +260,6 @@ export default function Home() {
               {authError}
             </p>
           )}
-          {authSuccess && (
-            <p className="auth-success" role="status">
-              {authSuccess}
-            </p>
-          )}
           <div className="form-links">
             <a href="#forgot-password">¿Olvidaste tu clave?</a>
             <button
@@ -330,6 +328,13 @@ export default function Home() {
       )}
       {showPendingAccount && (
         <RegistrationModal onClose={() => setShowPendingAccount(false)} />
+      )}
+      {authSuccess && (
+        <SuccessModal
+          message={authSuccess}
+          onClose={() => setAuthSuccess("")}
+          onContinue={() => router.push("/dashboard")}
+        />
       )}
     </main>
   );

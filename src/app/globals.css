@@ -485,13 +485,6 @@ input {
   font-size: 13px;
   line-height: 1.4;
 }
-.auth-success {
-  margin: 12px 0 0;
-  color: #21724f;
-  text-align: center;
-  font-size: 13px;
-  line-height: 1.4;
-}
 .promo-banner {
   position: relative;
   display: flex;
@@ -1029,6 +1022,58 @@ input {
   color: var(--accent-dark);
   font-size: 30px;
   font-weight: 900;
+}
+.success-modal {
+  position: relative;
+  width: min(100%, 430px);
+  padding: 34px 32px 30px;
+  border: 1px solid #c7ead8;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 20px 55px #10233f2e;
+  text-align: center;
+  animation: modal-in 0.25s ease both;
+}
+.success-modal-mark {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 5px auto 17px;
+  border-radius: 50%;
+  background: #d8f5e6;
+  color: #21724f;
+  font-size: 34px;
+  font-weight: 900;
+}
+.success-modal-kicker {
+  margin: 0 0 7px;
+  color: #21724f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.success-modal h2 {
+  margin: 0;
+  color: #0a1729;
+  font-size: clamp(25px, 5vw, 32px);
+  line-height: 1.1;
+}
+.success-modal-message {
+  margin: 12px 0 25px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.success-modal .modal-confirm {
+  background: #25a96c;
+  color: #fff;
+  box-shadow: 0 5px 10px #25a96c33;
+}
+.success-modal .modal-confirm:hover,
+.success-modal .modal-confirm:focus-visible {
+  background: #1d8f5b;
 }
 .account-modal h2 {
   margin: 0 0 10px;
