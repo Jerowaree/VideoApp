@@ -3,80 +3,59 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getMyProfile, signOut } from "@/lib/supabase/auth";
+import {
+  clearCachedProfileName,
+  readCachedProfileName,
+  writeCachedProfileName,
+} from "@/lib/profile-cache";
 import LoadingSpinner from "@/components/LoadingSpinner";
-
-const tasks = [
-  {
-    title: "Descubre la app Nubi",
-    category: "Apps",
-    reward: "S/ 2.50",
-    time: "3 min",
-    tone: "blue",
-    status: "Disponible",
-  },
-  {
-    title: "Video: hábitos que suman",
-    category: "Videos",
-    reward: "S/ 1.80",
-    time: "2 min",
-    tone: "coral",
-    status: "Disponible",
-  },
-  {
-    title: "Encuesta sobre entretenimiento",
-    category: "Encuestas",
-    reward: "S/ 3.20",
-    time: "5 min",
-    tone: "mint",
-    status: "Disponible",
-  },
-  {
-    title: "Opiniones sobre música",
-    category: "Encuestas",
-    reward: "S/ 1.20",
-    time: "2 min",
-    tone: "blue",
-    status: "Nueva",
-  },
-  {
-    title: "Aprende sobre finanzas",
-    category: "Videos",
-    reward: "S/ 2.10",
-    time: "4 min",
-    tone: "coral",
-    status: "Disponible",
-  },
-  {
-    title: "Prueba el buscador Vela",
-    category: "Apps",
-    reward: "S/ 4.00",
-    time: "6 min",
-    tone: "mint",
-    status: "Nueva",
-  },
-];
+import { tasks } from "@/lib/tasks";
+import { usePathname } from "next/navigation";
+import TaskCard from "@/components/TaskCard";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [activeModule, setActiveModule] = useState(
+    pathname.startsWith("/dashboard/tareas/") ? "tasks" : "home",
+  );
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  const [openingTask, setOpeningTask] = useState<string | null>(null);
 
   useEffect(() => {
     let isCurrent = true;
 
-    const loadProfile = async () => {
+    const hydrateProfile = async () => {
+      const cachedName = readCachedProfileName();
+      if (cachedName) {
+        if (isCurrent) {
+          setUserName(cachedName);
+          setIsProfileLoading(false);
+        }
+        return;
+      }
+
       try {
         const { data } = await getMyProfile();
-        if (isCurrent) setUserName(data?.name?.trim() || "Usuario");
+        if (isCurrent) {
+          const nextName = data?.name?.trim() || "Usuario";
+          setUserName(nextName);
+          writeCachedProfileName(nextName);
+        }
       } catch {
-        if (isCurrent) setUserName("Usuario");
+        if (isCurrent) {
+          setUserName("Usuario");
+          writeCachedProfileName("Usuario");
+        }
       } finally {
         if (isCurrent) setIsProfileLoading(false);
       }
     };
 
-    void loadProfile();
+    void hydrateProfile();
     return () => {
       isCurrent = false;
     };
@@ -85,27 +64,79 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     const { error } = await signOut();
-    if (!error) router.push("/");
+    if (!error) {
+      clearCachedProfileName();
+      router.push("/");
+    }
     setIsLoggingOut(false);
   };
 
   const nameParts = (userName ?? "Usuario").split(/\s+/);
   const firstName = nameParts[0];
   const remainingName = nameParts.slice(1).join(" ");
+  const openTask = (slug: string) => {
+    setSelectedTask(slug);
+    setOpeningTask(slug);
+    setActiveModule("tasks");
+    window.requestAnimationFrame(() => {
+      router.push(`/dashboard/tareas/${slug}`);
+    });
+  };
 
   return (
     <main className="dashboard-page">
+      {openingTask && (
+        <div className="task-transition-loader" role="status" aria-live="polite">
+          <div className="task-transition-loader-card">
+            <div className="task-loading-badges" aria-hidden="true">
+              <span className="task-loading-badge task-loading-badge-blue">
+                ✦
+              </span>
+              <span className="task-loading-badge task-loading-badge-coral">
+                ⌛
+              </span>
+              <span className="task-loading-badge task-loading-badge-mint">
+                ✓
+              </span>
+            </div>
+            <LoadingSpinner label="Abriendo detalle..." />
+            <strong>
+              {tasks.find((task) => task.slug === openingTask)?.title ||
+                "Cargando tarea"}
+            </strong>
+            <span>Preparando tu vista de tarea</span>
+          </div>
+        </div>
+      )}
       <header className="dashboard-header">
         <div className="dashboard-brand">
           <span className="dashboard-brand-mark">✦</span>
           <span>Gana Fácil</span>
         </div>
         <nav className="dashboard-nav" aria-label="Navegación principal">
-          <button className="dashboard-nav-active" type="button">
+          <button
+            className={activeModule === "home" ? "dashboard-nav-active" : ""}
+            type="button"
+            onClick={() => setActiveModule("home")}
+          >
             Inicio
           </button>
-          <button type="button">Mis tareas</button>
-          <button type="button">Retiros</button>
+          <button
+            className={activeModule === "tasks" ? "dashboard-nav-active" : ""}
+            type="button"
+            onClick={() => setActiveModule("tasks")}
+          >
+            Mis tareas
+          </button>
+          <button
+            className={
+              activeModule === "withdrawals" ? "dashboard-nav-active" : ""
+            }
+            type="button"
+            onClick={() => setActiveModule("withdrawals")}
+          >
+            Retiros
+          </button>
         </nav>
         <button
           className="dashboard-logout"
@@ -205,30 +236,29 @@ export default function DashboardPage() {
           </div>
           <div className="task-list" aria-label="Lista de tareas ficticias">
             {tasks.map((task) => (
-              <article className="task-card" key={task.title}>
-                <span
-                  className={`task-icon task-icon-${task.tone}`}
-                  aria-hidden="true"
-                >
-                  ✦
-                </span>
-                <div className="task-info">
-                  <span>
-                    {task.category} · {task.time} · <b>{task.status}</b>
-                  </span>
-                  <h3>{task.title}</h3>
-                </div>
-                <strong className="task-reward">{task.reward}</strong>
-                <button
-                  className="task-button"
-                  type="button"
-                  aria-label={`Empezar ${task.title}`}
-                >
-                  Empezar <span aria-hidden="true">→</span>
-                </button>
-              </article>
+              <TaskCard
+                key={task.slug}
+                task={task}
+                selected={selectedTask === task.slug}
+                onOpen={openTask}
+              />
             ))}
           </div>
+          {selectedTask && (
+            <div className="task-open-notice" role="status">
+              <span className="task-open-check" aria-hidden="true">✓</span>
+              <span>
+                <strong>Tarea seleccionada</strong>
+                <small>
+                  {tasks.find((task) => task.slug === selectedTask)?.title ||
+                    selectedTask}
+                </small>
+              </span>
+              <button type="button" onClick={() => setSelectedTask(null)}>
+                Cerrar
+              </button>
+            </div>
+          )}
         </section>
         <aside className="dashboard-activity-panel">
           <div className="dashboard-section-heading">
@@ -289,6 +319,24 @@ export default function DashboardPage() {
           Ver retiros
         </button>
       </section>
+        <nav className="dashboard-mobile-nav" aria-label="Navegación móvil">
+          <button className={activeModule === "home" ? "dashboard-mobile-nav-active" : ""} type="button" onClick={() => setActiveModule("home")}>
+            <span aria-hidden="true">⌂</span>
+            Inicio
+          </button>
+          <button className={activeModule === "tasks" ? "dashboard-mobile-nav-active" : ""} type="button" onClick={() => setActiveModule("tasks")}>
+            <span aria-hidden="true">☷</span>
+            Tareas
+          </button>
+          <button className={activeModule === "withdrawals" ? "dashboard-mobile-nav-active" : ""} type="button" onClick={() => setActiveModule("withdrawals")}>
+            <span aria-hidden="true">$</span>
+            Retiros
+          </button>
+          <button type="button">
+            <span aria-hidden="true">○</span>
+            Perfil
+          </button>
+        </nav>
     </main>
   );
 }
