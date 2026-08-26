@@ -38,4 +38,3 @@ pnpm build
 ## Vercel
 
 Importa el repositorio en Vercel y configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en los entornos correspondientes. El proyecto no requiere una configuracion `vercel.json` para el despliegue estandar de Next.js.
-

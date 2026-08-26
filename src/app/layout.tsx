@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./admin.css";
 
 export const metadata: Metadata = {
-  title: "Platform Videos",
-  description: "Video platform powered by Next.js and Supabase",
+  title: "Gana Dinero con Tareas Sencillas",
+  description: "Plataforma de videos para ganar dinero viendo contenido de calidad.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

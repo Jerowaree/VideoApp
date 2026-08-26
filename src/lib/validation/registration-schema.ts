@@ -19,6 +19,9 @@ export const registrationSchema = yup.object({
     .oneOf([yup.ref("password")], "Las contraseñas no coinciden"),
 });
 
-export const registrationStepOneSchema = registrationSchema.pick(["name", "phone"]);
+export const registrationStepOneSchema = registrationSchema.pick([
+  "name",
+  "phone",
+]);
 
 export type RegistrationValues = yup.InferType<typeof registrationSchema>;

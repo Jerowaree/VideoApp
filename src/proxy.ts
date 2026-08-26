@@ -2,7 +2,13 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
-  if (request.nextUrl.pathname !== "/") {
+  const pathname = request.nextUrl.pathname;
+  const allowedPath =
+    pathname === "/" ||
+    pathname === "/control-9f3a7c1e" ||
+    pathname.startsWith("/api/superadmin/") ||
+    pathname.startsWith("/api/registration/");
+  if (!allowedPath) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
