@@ -287,8 +287,8 @@ export default function Home() {
           <span className="check-mark">✓</span>
         </span>
         <div>
-          <strong>Regístrate y gana 6 PEN</strong>
-          <span>Gratis, solo 30 s</span>
+          <strong>Regístrate, completa tu perfil y gana 6 PEN</strong>
+          <span>Gratis, en menos de un minuto</span>
         </div>
       </aside>
 
